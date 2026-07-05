@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operations AI Programme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:  #0F1E3A;
+  --navy2: #1B2B4D;
+  --blue:  #2563EB;
+  --blue-s:#DBEAFE;
+  --blue-g:rgba(37,99,235,.18);
+  --green: #059669;
+  --grn-s: #D1FAE5;
+  --amber: #D97706;
+  --amb-s: #FEF3C7;
+  --red:   #DC2626;
+  --red-s: #FEE2E2;
+  --purple:#7C3AED;
+  --pur-s: #EDE9FE;
+  --teal:  #0891B2;
+  --tel-s: #CFFAFE;
+  --gold:  #C99A4B;
+  --card:  #FFFFFF;
+  --bg:    #F1F5F9;
+  --bg2:   #F8FAFC;
+  --text:  #0F172A;
+  --soft:  #475569;
+  --faint: #94A3B8;
+  --line:  #E2E8F0;
+  --line2: #CBD5E1;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── TOP BAR ── */
+.top-bar{background:var(--navy);padding:.85rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.top-logo{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:.5rem}
+.top-logo em{color:#60A5FA;font-style:italic}
+.top-badges{display:flex;gap:.5rem;flex-wrap:wrap}
+.tbadge{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.45);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:.22rem .65rem}
+.tbadge.live{color:#6EE7B7;background:rgba(110,231,183,.1);border-color:rgba(110,231,183,.25);display:flex;align-items:center;gap:.35rem}
+.ldot{width:6px;height:6px;border-radius:50%;background:#34D399;animation:plive 2s infinite}
+@keyframes plive{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}50%{box-shadow:0 0 0 5px rgba(52,211,153,0)}}
+
+/* ── TABS ── */
+.tabs{background:var(--card);border-bottom:1px solid var(--line);padding:0 2rem;display:flex;gap:0;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:var(--faint);background:none;border:none;border-bottom:2px solid transparent;padding:.9rem 1.2rem;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:var(--soft)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── PANELS ── */
+.panel{display:none}.panel.active{display:block}
+.wrap{max-width:1200px;margin:0 auto;padding:2rem}
+
+/* ── SHARED ── */
+.section-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:var(--navy2);margin-bottom:.3rem}
+.section-sub{font-size:12.5px;color:var(--soft);margin-bottom:1.75rem;line-height:1.6;max-width:780px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.15em;color:var(--faint);margin-bottom:.5rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.25rem}
+.divider{height:1px;background:var(--line);margin:2rem 0}
+.source-note{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint);letter-spacing:.04em;margin-top:1.5rem;text-align:center}
+
+/* ═══════════════════════════════
+   TAB 1 · INTERNAL BOOK OF WORK
+═══════════════════════════════ */
+
+/* Methodology strip */
+.method-strip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:2rem 1.75rem;margin-bottom:1.75rem}
+.method-title{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.15em;color:var(--faint);margin-bottom:1rem}
+.steps-row{display:flex;align-items:flex-start;justify-content:space-between;position:relative;padding:.5rem 0}.steps-row::before{content:'';position:absolute;top:20px;left:calc(100%/14);right:calc(100%/14);height:2px;background:var(--blue-s);z-index:0}
+.step-node{display:flex;flex-direction:column;align-items:center;gap:.55rem;flex:1;position:relative;z-index:1;padding:0 .5rem;text-align:center}
+
+
+
+.step-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;border:2px solid;flex-shrink:0;z-index:1;position:relative;background:var(--card)}
+.step-node.done .step-circle{background:var(--blue-s);border-color:var(--blue);color:var(--blue)}
+
+.step-name{font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;font-weight:600;text-align:center;color:var(--soft)}
+.step-node.done .step-name{color:var(--navy2)}.step-desc{font-size:10.5px;color:var(--soft);line-height:1.5;margin-top:.15rem;padding:0 .15rem}
+
+.step-sub{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);text-align:center}
+.step-detail{font-size:10.5px;line-height:1.4;color:var(--soft);text-align:center;padding:0 .2rem;margin-top:.1rem;}
+
+/* Initiative cards */
+.init-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.init-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.25rem;border-left:3px solid}
+.init-card.live{border-left-color:var(--green)}
+.init-card.pilot{border-left-color:var(--blue)}
+.init-card.build{border-left-color:var(--purple)}
+.init-card.eval{border-left-color:var(--amber)}
+.init-card.pending{border-left-color:var(--gold);border-left-style:dashed}
+.init-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem}
+.init-name{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text)}
+.phase-pill{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.08em;border-radius:3px;padding:.15rem .45rem;flex-shrink:0}
+.pp-live{color:var(--green);background:var(--grn-s);border:1px solid #6EE7B7}
+.pp-pilot{color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD}
+.pp-build{color:var(--purple);background:var(--pur-s);border:1px solid #C4B5FD}
+.pp-eval{color:var(--amber);background:var(--amb-s);border:1px solid #FCD34D}
+.pp-pending{color:var(--gold);background:#FEF9EC;border:1px dashed var(--gold)}
+.init-desc{font-size:12px;color:var(--soft);line-height:1.55;margin-bottom:.65rem}
+.init-kpi{display:flex;gap:.4rem;flex-wrap:wrap}
+.kpi-tag{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--soft);background:var(--bg2);border:1px solid var(--line);border-radius:3px;padding:.15rem .4rem}
+.init-phase-label{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--faint);margin-top:.5rem}
+
+/* ═══════════════════════════════
+   TAB 2 · STRATEGIC BOOK OF WORK
+═══════════════════════════════ */
+
+/* Timeline */
+.timeline-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.tl-card{border-radius:10px;padding:1.25rem;border:1px solid var(--line);border-left:4px solid;background:var(--card);}
+.tl-card.now{border-left-color:var(--blue)}
+.tl-card.mid{background:#fff;border:1px solid var(--line);border-top:4px solid var(--green)}
+.tl-card.future{background:#fff;border:1px solid var(--line);border-top:4px solid var(--gold)}
+.tl-year{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;margin-bottom:.15rem}
+.tl-card.now .tl-year{color:var(--blue)}
+.tl-card.mid .tl-year{color:var(--navy)}
+.tl-card.future .tl-year{color:var(--navy)}
+.tl-label{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.75rem}
+.tl-card.now .tl-label{color:var(--faint)}
+.tl-card.mid .tl-label{color:var(--faint);text-transform:uppercase;letter-spacing:.12em}
+.tl-card.future .tl-label{color:var(--faint);text-transform:uppercase;letter-spacing:.12em}
+.tl-items{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.tl-item{font-size:12px;line-height:1.55;padding-left:.9rem;position:relative}
+.tl-card.now .tl-item{color:var(--text)}
+.tl-card.mid .tl-item{color:var(--text)}
+.tl-card.future .tl-item{color:var(--text)}
+.tl-item::before{content:'·';position:absolute;left:0;font-size:1rem;line-height:1.3}
+.tl-card.now .tl-item::before{color:var(--blue)}
+.tl-card.mid .tl-item::before{color:var(--green)}
+.tl-card.future .tl-item::before{color:var(--gold)}
+.tl-cite{font-family:'IBM Plex Mono',monospace;font-size:10.5px;margin-top:.85rem;padding-top:.65rem;border-top:1px solid;line-height:1.5}
+.tl-card.now .tl-cite{color:var(--soft);border-color:var(--line)}
+.tl-card.mid .tl-cite{color:var(--soft);border-color:var(--line);font-size:10.5px}
+.tl-card.future .tl-cite{color:var(--soft);border-color:var(--line);font-size:10.5px}
+
+/* Dashboard embedded in Tab 2 */
+.dash-section-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:var(--navy2);margin-bottom:.25rem;display:flex;align-items:center;gap:.6rem}
+.dash-section-sub{font-size:12px;color:var(--soft);margin-bottom:1.25rem}
+
+/* Merchant selector */
+.merchant-bar{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.85rem 1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.m-label{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);flex-shrink:0}
+.m-select{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:.35rem .7rem;cursor:pointer;min-width:180px}
+.m-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.m-tag{font-family:'IBM Plex Mono',monospace;font-size:8.5px;border-radius:20px;padding:.18rem .6rem;border:1px solid}
+.mt-hosp{color:var(--teal);background:var(--tel-s);border-color:#67E8F9}
+.mt-ok{color:var(--green);background:var(--grn-s);border-color:#6EE7B7}
+.mt-warn{color:var(--amber);background:var(--amb-s);border-color:#FCD34D}
+.mt-alert{color:var(--red);background:var(--red-s);border-color:#FCA5A5}
+
+/* Health + KPIs */
+.dash-top{display:grid;grid-template-columns:180px 1fr;gap:1.1rem;margin-bottom:1.1rem;align-items:start}
+.health-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem;text-align:center}
+.health-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);margin-bottom:.65rem}
+.gauge-wrap{position:relative;display:inline-block}
+.gauge-score{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:var(--text);white-space:nowrap}
+.gauge-max{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint)}
+.health-status{display:inline-block;margin-top:.4rem;font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);background:var(--amb-s);border:1px solid #FCD34D;border-radius:3px;padding:.15rem .45rem}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem}
+.kpi-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
+.kpi-card.kwarn{border-left:3px solid var(--amber)}
+.kpi-card.kbad{border-left:3px solid var(--red)}
+.kpi-card.kgood{border-left:3px solid var(--green)}
+.kpi-card.kinfo{border-left:3px solid var(--blue)}
+.kpi-eye{font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:.3rem}
+.kpi-val{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:.2rem}
+.kpi-delta{font-family:'IBM Plex Mono',monospace;font-size:9.5px}
+.dd{color:var(--red)}.dg{color:var(--green)}
+.kpi-sub{font-size:10px;color:var(--faint);margin-top:.1rem}
+
+/* Chart */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin-bottom:1.1rem}
+.chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+.chart-title{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;color:var(--text)}
+.chart-meta{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint)}
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:72px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:3px 3px 0 0;background:var(--blue);opacity:.7;transition:opacity .15s}
+.bar:hover{opacity:1}.bar.cur{opacity:1}
+.bar-lbl{font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:var(--faint);text-align:center}
+.spark-row{display:flex;align-items:center;gap:.5rem;margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--line)}
+.spark-lbl{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.07em;width:72px;flex-shrink:0}
+.spark-dots{display:flex;align-items:center;gap:3px;flex:1}
+.sdot{height:5px;border-radius:2px;flex:1}
+.sv{font-family:'Fraunces',serif;font-size:.9rem;font-weight:700;width:46px;text-align:right;flex-shrink:0}
+
+/* Insights */
+.dash-body{display:grid;grid-template-columns:1fr 320px;gap:1.1rem;align-items:start}
+.insight-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin-bottom:1.1rem}
+.ins-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem}
+.ins-title{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:.4rem}
+.agent-badge{font-family:'IBM Plex Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--purple);background:var(--pur-s);border:1px solid #C4B5FD;border-radius:3px;padding:.12rem .38rem}
+.ins-ts{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint)}
+.ins-item{padding:.65rem 0;border-bottom:1px solid var(--line);display:flex;gap:.65rem}
+.ins-item:last-child{border-bottom:none;padding-bottom:0}
+.ins-sev{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.sr{background:var(--red)}.sa{background:var(--amber)}.sb{background:var(--blue)}.sg{background:var(--green)}
+.ins-text{font-size:12px;line-height:1.6;color:var(--soft);margin-bottom:.3rem}
+.ins-srcs{display:flex;gap:.35rem;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint)}
+.src-chip{background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:.08rem .32rem}
+
+/* Right col */
+.right-col{display:flex;flex-direction:column;gap:1rem}
+.action-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem}
+.act-title{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:.75rem}
+.act-item{display:flex;align-items:flex-start;gap:.55rem;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.act-item:last-child{border-bottom:none}
+.act-n{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint);width:16px;flex-shrink:0;padding-top:1px}
+.act-text{font-size:11.5px;color:var(--soft);line-height:1.5;flex:1}
+.act-owner{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--blue);background:var(--blue-s);border:1px solid #BFDBFE;border-radius:3px;padding:.1rem .32rem;flex-shrink:0}
+.sources-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem}
+.sources-lbl{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);margin-bottom:.75rem}
+.src-row{display:flex;align-items:center;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--line)}
+.src-row:last-child{border-bottom:none}
+.src-name{display:flex;align-items:center;gap:.4rem;font-size:11.5px;color:var(--text);font-weight:500}
+.sdot-sm{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.src-ts{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint)}
+.newwork-card{background:linear-gradient(135deg,var(--navy2),#243557);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:1.1rem}
+.nw-title{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;color:#E0F2FE;margin-bottom:.2rem;display:flex;align-items:center;gap:.35rem}
+.nw-sub{font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(255,255,255,.35);letter-spacing:.07em;margin-bottom:.75rem}
+.nw-item{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:.55rem .75rem;margin-bottom:.4rem;font-size:11.5px;color:rgba(255,255,255,.7);line-height:1.5}
+.nw-item:last-child{margin-bottom:0}
+.nw-hl{color:#93C5FD;font-weight:600}
+
+/* ═══════════════════════════════
+   TAB 3 · SYSTEM ARCHITECTURE
+═══════════════════════════════ */
+.arch-grid{display:grid;grid-template-columns:1fr 24px 1.5fr 24px 1fr;gap:0;align-items:start}
+.arch-col-hdr{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin-bottom:.85rem;text-align:center}
+.sys-col{display:flex;flex-direction:column;gap:.55rem}
+.sys-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.75rem 1rem;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.sys-card:hover,.sys-card.active-card{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-g)}
+.sys-top{display:flex;align-items:center;gap:.45rem;margin-bottom:.2rem}
+.sys-icon{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.sys-name{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text)}
+.sys-desc{font-size:10.5px;color:var(--faint);line-height:1.4;padding-left:1.6rem}
+.sys-tag{font-family:'IBM Plex Mono',monospace;font-size:8px;border-radius:3px;padding:.12rem .36rem;display:inline-block;margin-top:.25rem;margin-left:1.6rem}
+.arrow-col{display:flex;align-items:center;justify-content:center;padding-top:3rem}
+.arrow-svg{width:24px;height:120px}
+.sf-col{background:var(--navy);border-radius:12px;padding:1.1rem}
+.sf-hdr{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.sf-ico{width:26px;height:26px;background:#29B5E8;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.sf-title{font-family:'Fraunces',serif;font-size:.95rem;font-weight:600;color:#fff}
+.sf-sub-lbl{font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.38);letter-spacing:.1em;text-transform:uppercase}
+.sf-layer{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:.65rem .8rem;margin-bottom:.45rem}
+.sf-layer:last-child{margin-bottom:0}
+.sf-ln{font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:600;color:#E0F2FE;margin-bottom:.2rem}
+.sf-ld{font-size:10px;color:rgba(255,255,255,.45);line-height:1.4}
+.sf-chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:7.5px;padding:.1rem .35rem;border-radius:3px;margin-top:.25rem;margin-right:.2rem;background:rgba(99,211,255,.1);color:#7DD3FC;border:1px solid rgba(99,211,255,.18)}
+.out-col{display:flex;flex-direction:column;gap:.55rem}
+.out-card{border-radius:8px;padding:.85rem 1rem;border:1px solid}
+.oc-bedrock{background:linear-gradient(135deg,#1e1b4b,#312e81);border-color:rgba(139,92,246,.3)}
+.oc-dash{background:var(--card);border-color:var(--line)}
+.oc-alert{background:var(--amb-s);border-color:#FCD34D}
+.oc-loop{background:var(--grn-s);border-color:#6EE7B7}
+.out-title{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;margin-bottom:.2rem;display:flex;align-items:center;gap:.35rem}
+.oc-bedrock .out-title{color:#C4B5FD}
+.oc-dash .out-title{color:var(--text)}
+.oc-alert .out-title{color:#92400E}
+.oc-loop .out-title{color:#065F46}
+.out-desc{font-size:10.5px;line-height:1.5}
+.oc-bedrock .out-desc{color:rgba(255,255,255,.45)}
+.oc-dash .out-desc{color:var(--soft)}
+.oc-alert .out-desc{color:#78350F}
+.oc-loop .out-desc{color:#065F46}
+.btag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:#A78BFA;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);border-radius:3px;padding:.1rem .32rem;margin-top:.25rem;margin-right:.18rem}
+.detail-tray{background:var(--navy2);border-radius:10px;padding:1.1rem 1.35rem;margin-top:1.25rem;display:none}
+.detail-tray.vis{display:block}
+.dt-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:600;color:#fff;margin-bottom:.25rem}
+.dt-sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:.85rem}
+.dt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.55rem}
+.dt-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:.55rem .75rem}
+.dt-lbl{font-family:'IBM Plex Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.35);margin-bottom:.2rem}
+.dt-val{font-size:11.5px;color:rgba(255,255,255,.8);line-height:1.5}
+
+.arrow-line{width:2px;background:var(--line2);height:230px;position:relative;overflow:hidden;border-radius:1px}
+.arrow-line::after{content:'';position:absolute;top:-32px;left:0;width:2px;height:32px;background:var(--blue);animation:flow-down 1.8s linear infinite;border-radius:1px}
+@keyframes flow-down{0%{top:-32px;opacity:1}75%{opacity:.9}100%{top:262px;opacity:0}}
+/* Responsive */
+@media(max-width:900px){
+  .arch-grid,.init-grid,.kpi-strip,.timeline-row,.dash-top,.dash-body{grid-template-columns:1fr}
+  .arrow-col{display:none}
+  .wrap,.tabs{padding-left:1rem;padding-right:1rem}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .top-bar{padding:.75rem 1rem}
+}
+@media(max-width:540px){
+  .kpi-strip{grid-template-columns:1fr}
+  .steps-row{gap:0}
+  .step-node{min-width:72px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-logo">&#9670; Operations <em>AI Programme</em></div>
+  <div class="top-badges">
+    <div class="tbadge">Operations Domain</div>
+    <div class="tbadge live"><span class="ldot"></span>Bedrock &middot; Snowflake</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('int',this)">&#9649; Internal Book of Work</button>
+  <button class="tab-btn" onclick="switchTab('str',this)">&#9670; Strategic Book of Work</button>
+  <button class="tab-btn" onclick="switchTab('arc',this)">&#9632; System Architecture</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 1 · INTERNAL BOOK OF WORK
+═══════════════════════════════════════ -->
+<div id="panel-int" class="panel active">
+<div class="wrap">
+
+  <div class="eyebrow">Operations AI &middot; Current Delivery</div>
+  <div class="section-title">Internal Book of Work</div>
+  <div class="section-sub">AI initiatives in flight across the Operations domain, each following the seven-phase delivery methodology. At Citi, Phases 1&ndash;5 are complete on the anchor use case. Phases 6&ndash;7 require the agent interface to reach production readiness before activation.</div>
+
+  <!-- Methodology strip -->
+  <div class="method-strip">
+    <div class="method-title">Seven-Phase AI Delivery Methodology &middot; Applied to All Initiatives</div>
+    <div class="steps-row">
+      <div class="step-node done">
+        <div class="step-circle">01</div>
+        <div class="step-name">Discover</div>
+        <div class="step-desc">Map the AS-IS process step by step, quantify the volume and pain, and document data assets. No technology decision is made at this stage.</div>
+      </div>
+      <div class="step-node done">
+        <div class="step-circle">02</div>
+        <div class="step-name">Define</div>
+        <div class="step-desc">Translate the pain into a falsifiable value hypothesis with specific KPIs. Lock the risk tier and human oversight designation. Business Director sign-off required before engineering is engaged.</div>
+      </div>
+      <div class="step-node done">
+        <div class="step-circle">03</div>
+        <div class="step-name">Build</div>
+        <div class="step-desc">Build the minimum viable agent scoped to the highest-value part of the workflow. Test against an SME ground truth dataset. Scope discipline is the primary constraint.</div>
+      </div>
+      <div class="step-node done">
+        <div class="step-circle">04</div>
+        <div class="step-name">Contain</div>
+        <div class="step-desc">Deploy to a cohort of 5-15 people running in parallel with the existing process. Real data, contained blast radius. Fix only, no new features during this phase.</div>
+      </div>
+      <div class="step-node done">
+        <div class="step-circle">05</div>
+        <div class="step-name">Evaluate</div>
+        <div class="step-desc">Present the Go, Scale or Stop recommendation with the full evidence pack. The recommendation belongs to the programme lead. The decision belongs to the Business Director.</div>
+      </div>
+      <div class="step-node done">
+        <div class="step-circle">06</div>
+        <div class="step-name">Scale</div>
+        <div class="step-desc">Phased rollout across teams or geographies with evidence gates between each phase. KPI confirmation required before the next phase opens. Pass the gate, then grow.</div>
+      </div>
+      <div class="step-node done">
+        <div class="step-circle">07</div>
+        <div class="step-name">Operate</div>
+        <div class="step-desc">Continuous monitoring, automated drift detection and retraining triggers. Quarterly performance review to the COO. An agent is never done.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Initiative table -->
+  <div class="eyebrow" style="margin-bottom:.65rem;">Examples &middot; Initiatives in Flight</div>
+  <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--line);margin-bottom:1.25rem;">
+  <table style="width:100%;border-collapse:collapse;background:var(--card);">
+    <thead>
+      <tr style="background:var(--bg2);border-bottom:2px solid var(--line2);">
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">Initiative Name</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">State</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">Risk Tier</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">Human Oversight</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">Business Value</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">Complexity</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);">Data Readiness</th>
+        <th style="padding:.65rem .9rem;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:500;white-space:nowrap;border-right:1px solid var(--line);border-right:none;">Target KPI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">SLA Monitoring &amp; Alert System</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--green);background:var(--grn-s);border:1px solid #6EE7B7;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9679; Operate &middot; Live</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#92400E;background:#FEF3C7;border:1px solid #FCD34D;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T2</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">On-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>Low</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">SLA breach surfaced before escalation in 100% of cases</td>
+      </tr>
+      <tr style="background:var(--bg2);border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Settlement Exception Classifier</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--amber);background:var(--amb-s);border:1px solid #FCD34D;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9651; Evaluate</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#991B1B;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T1</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">On-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Auto-resolution &gt;85%; routing accuracy &gt;95%</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Dispute Resolution Agent</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9670; Contain &middot; Pilot</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#991B1B;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T1</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">On-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Resolution cycle: 4.2 days &rarr; 2.1 days (SLA target)</td>
+      </tr>
+      <tr style="background:var(--bg2);border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Reconciliation Exception Handler</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--purple);background:var(--pur-s);border:1px solid #C4B5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9632; Build</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#991B1B;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T1</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">On-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:#B45309;font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:#B45309;flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Auto-resolution &gt;80%; cycle time reduction &gt;70%</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Automated Merchant Performance Digest</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--green);background:var(--grn-s);border:1px solid #6EE7B7;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9679; Operate &middot; Live</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#065F46;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T3</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#5B21B6;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">Out-of-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>Low</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Digest delivered at 06:00 daily; zero manual intervention</td>
+      </tr>
+      <tr style="background:var(--bg2);border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Low-Value Dispute Auto-Resolution</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--green);background:var(--grn-s);border:1px solid #6EE7B7;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9679; Operate &middot; Live</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#92400E;background:#FEF3C7;border:1px solid #FCD34D;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T2</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#5B21B6;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">Out-of-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>Low</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Disputes &lt;&euro;25 auto-closed &lt;60 sec; false positive &lt;0.5%</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Scale: Dispute Resolution (all regions)</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);background:#FEF9EC;border:1px solid var(--gold);border-style:dashed;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9671; Pending &middot; Phase 06</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#991B1B;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T1</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">On-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Phase 04 KPIs sustained across all regions at full scale</td>
+      </tr>
+      <tr style="background:var(--bg2);border-bottom:1px solid var(--line);">
+        <td style="padding:.6rem .9rem;font-size:12px;font-weight:600;color:var(--text);border-right:1px solid var(--line);vertical-align:middle;">Operate: Monitoring &amp; Drift</td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);background:#FEF9EC;border:1px solid var(--gold);border-style:dashed;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">&#9671; Pending &middot; Phase 07</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:#92400E;background:#FEF3C7;border:1px solid #FCD34D;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">T2</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);background:var(--blue-s);border:1px solid #93C5FD;border-radius:3px;padding:.18rem .45rem;white-space:nowrap;">On-Loop</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--amber);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Medium</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>Low</span></td>
+        <td style="padding:.6rem .9rem;font-size:11.5px;border-right:1px solid var(--line);vertical-align:middle;"><span style="display:inline-flex;align-items:center;gap:.3rem;font-size:11.5px;color:var(--green);font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>High</span></td>
+        <td style="padding:.6rem .9rem;font-size:11px;color:var(--soft);line-height:1.4;vertical-align:middle;">Zero undetected drift; quarterly COO review 100% on time</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="source-note">Methodology: Gartner Agent Development Lifecycle (ADLC) 2026 &middot; McKinsey Four-Phase AI Deployment Model Apr 2026 &middot; Risk tiering: Citi 2LoD AI Governance 2025&ndash;26</div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 2 · STRATEGIC BOOK OF WORK
+═══════════════════════════════════════ -->
+<div id="panel-str" class="panel">
+<div class="wrap">
+
+  <div class="eyebrow">Operations AI &middot; Strategic Horizon</div>
+  <div class="section-title">Strategic Book of Work</div>
+  <div class="section-sub">The path from internal efficiency to external value creation. The Internal Book of Work delivers quick wins and operational ROI now. The Strategic Book of Work defines what becomes possible as the intelligence layer matures, with the Operations Intelligence view below showing what management sees at the 2027&ndash;28 horizon.</div>
+
+  <!-- Timeline -->
+  <div class="timeline-row">
+
+    <div class="tl-card now">
+      <div class="tl-year">2026</div>
+      <div class="tl-label">Internal Efficiency &middot; Now</div>
+      <ul class="tl-items">
+        <li>Automate high-volume, rule-based operational processes</li>
+        <li>Reduce cost per case and cycle time across disputes, exceptions and SLA monitoring</li>
+        <li>Build the data foundations and agent governance framework</li>
+        <li>Prove ROI with evidence gates before scaling</li>
+        <li>Human-on-the-Loop for all consequential outputs</li>
+      </ul>
+      <div class="tl-cite">McKinsey (Apr 2026): 60% of organisations still have not seen enterprise-wide EBIT impact. Those that do have rebuilt workflows end-to-end, not bolted AI on top.</div>
+    </div>
+
+    <div class="tl-card mid">
+      <div class="tl-year">2027</div>
+      <div class="tl-label">Cross-Domain Intelligence &middot; Transition</div>
+      <ul class="tl-items">
+        <li>Agent networks begin operating across domains: Operations data joined with Commercial and Finance signals</li>
+        <li>Proactive merchant intelligence surfaced without a human running the query</li>
+        <li>First external signals delivered to merchants: auth rate gaps, dispute patterns, SLA benchmarking</li>
+        <li>One-third of agentic implementations combining specialist agents for complex tasks</li>
+      </ul>
+      <div class="tl-cite">Gartner (2026): By 2027, one-third of agentic AI implementations will combine agents with different skills to manage complex tasks across application environments.</div>
+    </div>
+
+    <div class="tl-card future">
+      <div class="tl-year">2028</div>
+      <div class="tl-label">External Value Creation &middot; Target</div>
+      <ul class="tl-items">
+        <li>Operational intelligence becomes a product: merchants receive proactive insight into their own performance</li>
+        <li>Agent-to-agent networks coordinate across merchant, platform and payment network simultaneously</li>
+        <li>90% of B2B interactions AI agent intermediated: $15 trillion through AI agent exchanges</li>
+        <li>Operations intelligence layer differentiates the platform from commodity payment rails</li>
+      </ul>
+      <div class="tl-cite">Gartner (2026): By 2028, 90% of B2B buying will be AI agent intermediated. A third of user experiences will shift to agentic front ends, driving new business models and pricing structures.</div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Intelligence Dashboard -->
+  <div class="dash-section-title">
+    &#9726; Operations Intelligence
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--faint);font-weight:400;letter-spacing:.08em;">2027&ndash;28 Management View</span>
+  </div>
+  <div class="dash-section-sub">What the COO sees when the intelligence layer is live: a unified operational picture of every merchant account, surfacing signals no individual report would capture.</div>
+
+  <!-- Merchant selector -->
+  <div class="merchant-bar">
+    <span class="m-label">Account</span>
+    <select class="m-select" onchange="updateMerchant(this.value)">
+      <option value="a">Premium Hotel Group A</option>
+      <option value="b">Retail Chain B</option>
+      <option value="c">Hotel Group C</option>
+    </select>
+    <div class="m-tags" id="m-tags">
+      <span class="m-tag mt-hosp">Hospitality</span>
+      <span class="m-tag mt-ok">Active</span>
+      <span class="m-tag mt-warn">SLA Tier: Premium</span>
+      <span class="m-tag mt-alert">Service Review Due</span>
+    </div>
+  </div>
+
+  <!-- Health + KPIs -->
+  <div class="dash-top">
+    <div class="health-card">
+      <div class="health-lbl">Operational Health Score</div>
+      <div class="gauge-wrap">
+        <svg width="148" height="84" viewBox="0 0 148 84">
+          <path d="M 18 76 A 56 56 0 0 1 130 76" fill="none" stroke="#E2E8F0" stroke-width="9" stroke-linecap="round"/>
+          <path d="M 18 76 A 56 56 0 0 1 130 76" fill="none" stroke="#D97706" stroke-width="9" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="53"/>
+        </svg>
+        <div class="gauge-score">72<span class="gauge-max">/100</span></div>
+      </div>
+      <div class="health-status">Needs Attention</div>
+      <div style="font-size:10px;color:var(--faint);margin-top:.4rem;line-height:1.4;">Composite: transactions, disputes, SLA, support</div>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-card kwarn">
+        <div class="kpi-eye">Monthly Volume</div>
+        <div class="kpi-val">&euro;2.3M</div>
+        <div class="kpi-delta dd">&#8595; &euro;180K vs last month</div>
+        <div class="kpi-sub">Hospitality transactions</div>
+      </div>
+      <div class="kpi-card kbad">
+        <div class="kpi-eye">Auth Rate</div>
+        <div class="kpi-val">94.2%</div>
+        <div class="kpi-delta dd">&#8595; 1.9pp &middot; 6-week low</div>
+        <div class="kpi-sub">Peer avg: 97.1%</div>
+      </div>
+      <div class="kpi-card kbad">
+        <div class="kpi-eye">Dispute Rate</div>
+        <div class="kpi-val">1.8%</div>
+        <div class="kpi-delta dd">&#8593; trending 6 weeks</div>
+        <div class="kpi-sub">73% from room service</div>
+      </div>
+      <div class="kpi-card kinfo">
+        <div class="kpi-eye">Open Tickets</div>
+        <div class="kpi-val">12</div>
+        <div class="kpi-delta dd">3 high priority</div>
+        <div class="kpi-sub">Avg: 4.2 days vs 2.1 SLA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card">
+    <div class="chart-hdr">
+      <div class="chart-title">Transaction Volume &amp; Key Rates &middot; Last 8 Weeks</div>
+      <div class="chart-meta">Payment Gateway via Snowflake Cortex Analyst</div>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-wrap"><div class="bar" style="height:62%"></div><div class="bar-lbl">W-8</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:68%"></div><div class="bar-lbl">W-7</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:75%"></div><div class="bar-lbl">W-6</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:82%"></div><div class="bar-lbl">W-5</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:90%"></div><div class="bar-lbl">W-4</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:85%"></div><div class="bar-lbl">W-3</div></div>
+      <div class="bar-wrap"><div class="bar" style="height:78%"></div><div class="bar-lbl">W-2</div></div>
+      <div class="bar-wrap"><div class="bar cur" style="height:71%"></div><div class="bar-lbl">This wk</div></div>
+    </div>
+    <div class="spark-row">
+      <span class="spark-lbl">Auth Rate</span>
+      <div class="spark-dots">
+        <div class="sdot" style="height:13px;background:var(--green)"></div>
+        <div class="sdot" style="height:13px;background:var(--green)"></div>
+        <div class="sdot" style="height:13px;background:var(--green)"></div>
+        <div class="sdot" style="height:11px;background:var(--amber)"></div>
+        <div class="sdot" style="height:9px;background:var(--amber)"></div>
+        <div class="sdot" style="height:7px;background:var(--red)"></div>
+        <div class="sdot" style="height:6px;background:var(--red)"></div>
+        <div class="sdot" style="height:5px;background:var(--red)"></div>
+      </div>
+      <span class="sv" style="color:var(--red);">94.2%</span>
+    </div>
+    <div class="spark-row">
+      <span class="spark-lbl">Dispute Rate</span>
+      <div class="spark-dots">
+        <div class="sdot" style="height:3px;background:var(--green)"></div>
+        <div class="sdot" style="height:3px;background:var(--green)"></div>
+        <div class="sdot" style="height:4px;background:var(--green)"></div>
+        <div class="sdot" style="height:6px;background:var(--amber)"></div>
+        <div class="sdot" style="height:8px;background:var(--amber)"></div>
+        <div class="sdot" style="height:10px;background:var(--red)"></div>
+        <div class="sdot" style="height:12px;background:var(--red)"></div>
+        <div class="sdot" style="height:13px;background:var(--red)"></div>
+      </div>
+      <span class="sv" style="color:var(--red);">1.8%</span>
+    </div>
+  </div>
+
+  <!-- Insights + right col -->
+  <div class="dash-body">
+    <div>
+      <div class="insight-card">
+        <div class="ins-hdr">
+          <div class="ins-title">&#9670; Agent-Generated Insights <span class="agent-badge">Bedrock Agent</span></div>
+          <div class="ins-ts">Updated 4 min ago</div>
+        </div>
+
+        <div class="ins-item">
+          <div class="ins-sev sr"></div>
+          <div>
+            <div class="ins-text">Auth rate decline of 1.9pp over 6 weeks. Pattern matches FX configuration issue identified in comparable hospitality merchants in Q1 2026, resolved via terminal configuration update. Gap against peer average of 97.1% represents approximately <strong>&euro;67K monthly revenue leakage</strong> at current volume.</div>
+            <div class="ins-srcs"><span class="src-chip">Payment Gateway</span><span class="src-chip">Peer benchmarking</span><span class="src-chip">Case history (Cortex Search)</span></div>
+          </div>
+        </div>
+
+        <div class="ins-item">
+          <div class="ins-sev sa"></div>
+          <div>
+            <div class="ins-text">Dispute rate trending upward for 6 consecutive weeks, now 1.8%. <strong>73% originate from room service transactions</strong> sharing the same MCC code pattern. Probable cause: POS terminal configuration mismatch introduced in a recent firmware update. Comparable case resolved in 8 days at a similar hospitality merchant in Dec 2025.</div>
+            <div class="ins-srcs"><span class="src-chip">Dispute Management</span><span class="src-chip">PMS &amp; Network</span><span class="src-chip">Resolved case knowledge base</span></div>
+          </div>
+        </div>
+
+        <div class="ins-item">
+          <div class="ins-sev sa"></div>
+          <div>
+            <div class="ins-text">Operational service quality degrading across three independent signals: auth rate decline, rising dispute rate, and SLA breaches on open tickets. NPS has dropped from 8.6 to 7.2 over six months. <strong>Service deterioration: Moderate-High.</strong> Operational intervention required within 14 days before formal escalation occurs.</div>
+            <div class="ins-srcs"><span class="src-chip">Salesforce CRM</span><span class="src-chip">Support Platform</span><span class="src-chip">Cortex Analyst &middot; NPS trend</span></div>
+          </div>
+        </div>
+
+        <div class="ins-item">
+          <div class="ins-sev sb"></div>
+          <div>
+            <div class="ins-text">Dispute resolution time for this account is averaging <strong>4.2 days against a Tier-1 SLA target of 2.1 days</strong>. 8 of 12 open tickets have exceeded initial response SLA. Root cause: ticket category mismatch routing room service disputes to a generalist queue. Operational routing fix estimated to restore SLA compliance within 48 hours.</div>
+            <div class="ins-srcs"><span class="src-chip">Support Platform &middot; SLA data</span><span class="src-chip">Dispute Management &middot; Queue routing</span><span class="src-chip">Workday &middot; Queue capacity</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-col">
+      <div class="action-card">
+        <div class="act-title">&#9654; Recommended Actions</div>
+        <div class="act-item">
+          <div class="act-n">01</div>
+          <div class="act-text">Initiate terminal configuration review for auth rate decline. Target resolution within 5 business days.</div>
+          <div class="act-owner">Operations</div>
+        </div>
+        <div class="act-item">
+          <div class="act-n">02</div>
+          <div class="act-text">Escalate 3 high-priority tickets. Assign dedicated case owner. Merchant communication within 48 hours.</div>
+          <div class="act-owner">Support</div>
+        </div>
+        <div class="act-item">
+          <div class="act-n">03</div>
+          <div class="act-text">Initiate merchant service quality review. Share peer benchmarking and projected fix timeline proactively.</div>
+          <div class="act-owner">Service Quality</div>
+        </div>
+        <div class="act-item">
+          <div class="act-n">04</div>
+          <div class="act-text">Fix ticket routing: reclassify room service disputes to payments-specialist queue. SLA restoration: 48 hours.</div>
+          <div class="act-owner">Operations</div>
+        </div>
+      </div>
+
+      <div class="sources-card">
+        <div class="sources-lbl">Intelligence Sources &middot; This View</div>
+        <div class="src-row"><div class="src-name"><div class="sdot-sm" style="background:#0176D3"></div>Salesforce CRM</div><div class="src-ts">2 min ago</div></div>
+        <div class="src-row"><div class="src-name"><div class="sdot-sm" style="background:#059669"></div>Payment Gateway</div><div class="src-ts">Live</div></div>
+        <div class="src-row"><div class="src-name"><div class="sdot-sm" style="background:#DC2626"></div>Dispute Management</div><div class="src-ts">8 min ago</div></div>
+        <div class="src-row"><div class="src-name"><div class="sdot-sm" style="background:#7C3AED"></div>Support Platform</div><div class="src-ts">12 min ago</div></div>
+        <div class="src-row"><div class="src-name"><div class="sdot-sm" style="background:#0891B2"></div>PMS &amp; Network</div><div class="src-ts">45 min ago</div></div>
+        <div class="src-row"><div class="src-name"><div class="sdot-sm" style="background:#F25A25"></div>Workday &middot; Workforce</div><div class="src-ts">Nightly</div></div>
+      </div>
+
+      <div class="newwork-card">
+        <div class="nw-title">&#9670; Net New Work Surfaced</div>
+        <div class="nw-sub">Signals the agent found that no human queried for</div>
+        <div class="nw-item"><span class="nw-hl">Settlement exception cluster</span> &mdash; 23 exceptions in 7 days sharing the same input pattern, not flagged in any operational report. Agent found it scanning raw settlement logs in Snowflake unprompted.</div>
+        <div class="nw-item"><span class="nw-hl">Queue capacity signal</span> &mdash; Recurring language in ticket notes ("waiting", "no update", "chased again") indicates a staffing gap in the regional operations queue. Not visible in any structured capacity report.</div>
+        <div class="nw-item"><span class="nw-hl">Resolution pattern match</span> &mdash; Auth decline matched to a prior resolution playbook. Zero human lookup. Estimated remediation time drops from 3 weeks to 5 days.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-note">McKinsey (Apr 2026) &middot; Gartner Hype Cycle for Agentic AI 2026 &middot; Gartner: 90% of B2B buying AI agent intermediated by 2028</div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 3 · SYSTEM ARCHITECTURE
+═══════════════════════════════════════ -->
+<div id="panel-arc" class="panel">
+<div class="wrap">
+
+  <div class="eyebrow">Operations AI &middot; Stack</div>
+  <div class="section-title">System Architecture</div>
+  <div class="section-sub">How source systems flow through Snowflake into Bedrock AgentCore and surface as operational intelligence. Click any source system to see what data it contributes and how the agent uses it.</div>
+
+  <div class="arch-grid">
+
+    <!-- SOURCE SYSTEMS -->
+    <div>
+      <div class="arch-col-hdr">Source Systems</div>
+      <div class="sys-col">
+
+        <div class="sys-card" onclick="showDetail('sf')">
+          <div class="sys-top"><div class="sys-icon" style="background:#0176D3;color:#fff;">&#9830;</div><div class="sys-name">Salesforce CRM</div></div>
+          <div class="sys-desc">Merchant accounts, contacts, contracts, support cases, NPS</div>
+          <span class="sys-tag" style="background:#E0F0FF;color:#0176D3;border:1px solid #BFDBFE;">Commercial</span>
+        </div>
+
+        <div class="sys-card" onclick="showDetail('pay')">
+          <div class="sys-top"><div class="sys-icon" style="background:#059669;color:#fff;">&#8646;</div><div class="sys-name">Payment Gateway</div></div>
+          <div class="sys-desc">Transaction volume, auth rates, decline codes, settlements, DCC, tax-free</div>
+          <span class="sys-tag" style="background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;">Operations</span>
+        </div>
+
+        <div class="sys-card" onclick="showDetail('disp')">
+          <div class="sys-top"><div class="sys-icon" style="background:#DC2626;color:#fff;">!</div><div class="sys-name">Dispute Management</div></div>
+          <div class="sys-desc">Chargeback cases, fraud flags, reason codes, resolution timelines</div>
+          <span class="sys-tag" style="background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;">Risk</span>
+        </div>
+
+        <div class="sys-card" onclick="showDetail('pms')">
+          <div class="sys-top"><div class="sys-icon" style="background:#0891B2;color:#fff;">&#9673;</div><div class="sys-name">PMS &amp; Network</div></div>
+          <div class="sys-desc">Property management, hospitality transactions, guest touchpoints, network performance</div>
+          <span class="sys-tag" style="background:#CFFAFE;color:#0E7490;border:1px solid #67E8F9;">Hospitality</span>
+        </div>
+
+        <div class="sys-card" onclick="showDetail('sup')">
+          <div class="sys-top"><div class="sys-icon" style="background:#7C3AED;color:#fff;">&#9993;</div><div class="sys-name">Support Platform</div></div>
+          <div class="sys-desc">Merchant tickets, complaint categories, SLA compliance, escalation history, CSAT</div>
+          <span class="sys-tag" style="background:#EDE9FE;color:#5B21B6;border:1px solid #C4B5FD;">Operations</span>
+        </div>
+
+        <div class="sys-card" onclick="showDetail('wd')">
+          <div class="sys-top"><div class="sys-icon" style="background:#F25A25;color:#fff;">&#9670;</div><div class="sys-name">Workday &middot; Workforce</div></div>
+          <div class="sys-desc">Team capacity, shift scheduling, queue staffing levels, workforce allocation</div>
+          <span class="sys-tag" style="background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;">Operations</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-col">
+      <div class="arrow-line"></div>
+    </div>
+
+    <!-- SNOWFLAKE -->
+    <div>
+      <div class="arch-col-hdr">Snowflake AI Data Cloud</div>
+      <div class="sf-col">
+        <div class="sf-hdr">
+          <div class="sf-ico">&#10053;</div>
+          <div><div class="sf-title">Snowflake</div><div class="sf-sub-lbl">AI Data Cloud &middot; Unified Layer</div></div>
+        </div>
+        <div class="sf-layer">
+          <div class="sf-ln">&#9632; Raw &amp; Transformed Data</div>
+          <div class="sf-ld">All source data lands here via AWS Glue pipelines and Kinesis streams. Single source of truth across all operational domains.</div>
+          <span class="sf-chip">AWS Glue</span><span class="sf-chip">Kinesis</span><span class="sf-chip">REST APIs</span>
+        </div>
+        <div class="sf-layer">
+          <div class="sf-ln">&#9670; Cortex Analyst</div>
+          <div class="sf-ld">Natural language to SQL against structured data. Agent asks a question, Cortex Analyst generates and runs the query automatically. No human writes SQL.</div>
+          <span class="sf-chip">Text-to-SQL</span><span class="sf-chip">Semantic model</span>
+        </div>
+        <div class="sf-layer">
+          <div class="sf-ln">&#8644; Cortex Search</div>
+          <div class="sf-ld">Vector search across unstructured data: resolved case notes, SME knowledge, policy documents, support ticket narratives. Powers the RAG layer.</div>
+          <span class="sf-chip">Vector store</span><span class="sf-chip">RAG</span><span class="sf-chip">Knowledge base</span>
+        </div>
+        <div class="sf-layer">
+          <div class="sf-ln">&#9670; Managed MCP Server</div>
+          <div class="sf-ld">Bedrock AgentCore connects to Snowflake securely via the Snowflake-managed MCP server. No data leaves Snowflake. No separate infrastructure required.</div>
+          <span class="sf-chip">Secure</span><span class="sf-chip">No data movement</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div class="arrow-col">
+      <div class="arrow-line"></div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div>
+      <div class="arch-col-hdr">Bedrock Agents &amp; Intelligence</div>
+      <div class="out-col">
+
+        <div class="out-card oc-bedrock">
+          <div class="out-title">&#9670; AWS Bedrock AgentCore</div>
+          <div class="out-desc">Orchestration layer. Agent plans, reasons and acts: calls Snowflake via MCP, retrieves structured data via Cortex Analyst, retrieves context via Cortex Search, synthesises a response. Guardrails enforce Human-on-the-Loop for all consequential outputs.</div>
+          <span class="btag">Foundation model</span><span class="btag">Guardrails</span><span class="btag">Action groups</span>
+        </div>
+
+        <div class="out-card oc-dash">
+          <div class="out-title">&#9726; Operations Intelligence</div>
+          <div class="out-desc">Unified operational view surfaced to the COO and Operations Directors. Transaction performance, dispute trends, SLA compliance and AI insights in one place. Updated continuously. See Strategic Book of Work tab for the live view.</div>
+        </div>
+
+        <div class="out-card oc-alert">
+          <div class="out-title">&#9651; Proactive Alert Engine</div>
+          <div class="out-desc">Agent runs continuously. Surfaces operational signals before the COO asks: auth rate declining, SLA breach trending, dispute rate rising. Pushed to Operations Directors automatically.</div>
+        </div>
+
+        <div class="out-card oc-loop">
+          <div class="out-title">&#8635; Feedback Loop</div>
+          <div class="out-desc">Every human correction returns to Snowflake as new training data. The knowledge base improves with every case handled. Institutional knowledge compounds rather than walking out the door.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Detail tray -->
+  <div class="detail-tray" id="detail-tray">
+    <div class="dt-title" id="dt-title"></div>
+    <div class="dt-sub" id="dt-sub"></div>
+    <div class="dt-grid" id="dt-grid"></div>
+  </div>
+
+  <div class="source-note">AWS Bedrock AgentCore &middot; Snowflake Cortex Analyst &amp; Cortex Search &middot; Snowflake Managed MCP Server &middot; AWS Glue &middot; Amazon Kinesis</div>
+
+</div>
+</div>
+
+<script>
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function updateMerchant(v){
+  var cfg={
+    a:'<span class="m-tag mt-hosp">Hospitality</span><span class="m-tag mt-ok">Active</span><span class="m-tag mt-warn">SLA Tier: Premium</span><span class="m-tag mt-alert">Service Review Due</span>',
+    b:'<span class="m-tag" style="color:var(--purple);background:var(--pur-s);border-color:#C4B5FD;">Retail</span><span class="m-tag mt-ok">Active</span><span class="m-tag mt-ok">SLA Tier: Standard</span>',
+    c:'<span class="m-tag mt-hosp">Hospitality</span><span class="m-tag mt-ok">Active</span><span class="m-tag mt-ok">SLA Tier: Premium</span>'
+  };
+  document.getElementById('m-tags').innerHTML=cfg[v]||cfg.a;
+}
+
+var DETAILS={
+  sf:{title:'Salesforce CRM',sub:'Commercial context: what do we know about this account as a customer relationship?',items:[
+    {l:'Data contributed',v:'Merchant account records, contact hierarchy, contract value and renewal dates, support case history, NPS scores, product subscriptions'},
+    {l:'Update frequency',v:'Real-time via Salesforce API connector into Snowflake. Commercial and contact data synced every 15 minutes'},
+    {l:'Agent use',v:'Cortex Analyst queries account health signals. Cortex Search retrieves communication history and support case narratives for context in dispute handling'},
+    {l:'New work generated',v:'Surfaces accounts with deteriorating service quality signals before the team is aware. Identifies competitor mentions in support case text autonomously'}
+  ]},
+  pay:{title:'Payment Gateway',sub:'Transaction data: how is money actually flowing and where is it breaking down?',items:[
+    {l:'Data contributed',v:'Transaction volume by merchant, auth rates, decline reason codes, settlement timings, FX rates, DCC uptake, tax-free transaction data'},
+    {l:'Update frequency',v:'Real-time streaming via Kinesis. Most current operational data source in the stack'},
+    {l:'Agent use',v:'Cortex Analyst runs continuous queries for auth rate trends, decline code clustering and peer benchmarking. Anomalies identified within hours of onset'},
+    {l:'New work generated',v:'Identifies auth rate gaps against peer cohort representing quantifiable revenue leakage. Detects decline code patterns indicating configuration issues before the merchant complains'}
+  ]},
+  disp:{title:'Dispute Management',sub:'Risk data: where are chargebacks trending and what is causing them?',items:[
+    {l:'Data contributed',v:'Chargeback cases, dispute reason codes, merchant liability decisions, network rulings, fraud flags, resolution timelines, financial exposure'},
+    {l:'Update frequency',v:'Near real-time via API. New disputes visible in Snowflake within minutes of case creation'},
+    {l:'Agent use',v:'Cortex Analyst queries dispute patterns by merchant and reason code. Cortex Search retrieves similar historical cases and resolution playbooks from the knowledge base'},
+    {l:'New work generated',v:'Identifies POS configuration root causes from dispute code clustering before the Operations team investigates. Matches new patterns to resolved cases and surfaces the playbook automatically'}
+  ]},
+  pms:{title:'PMS & Network',sub:'Hospitality data: what is happening at property level that connects to payment performance?',items:[
+    {l:'Data contributed',v:'Property management events, room service transaction data, check-in volumes, network performance, guest touchpoint frequency'},
+    {l:'Update frequency',v:'Batch every 4 hours. Real-time for network performance monitoring'},
+    {l:'Agent use',v:'Cortex Analyst joins PMS data with payment data to identify dispute patterns by property area. Room service dispute clustering identified by correlating PMS logs with dispute management data'},
+    {l:'New work generated',v:'Cross-domain joins between PMS and payment data identify root causes not visible in either system independently. Previously invisible without manual analysis'}
+  ]},
+  sup:{title:'Support Platform',sub:'Sentiment data: what are merchants telling us in their own words?',items:[
+    {l:'Data contributed',v:'Support ticket text, complaint category codes, SLA compliance records, escalation history, CSAT scores, resolution times, agent notes'},
+    {l:'Update frequency',v:'Real-time via API. Ticket text embedded into Cortex Search vector store for semantic retrieval within minutes'},
+    {l:'Agent use',v:'Cortex Search performs semantic search across ticket narratives. Identifies service deterioration signals and recurring complaint themes not visible in structured category codes'},
+    {l:'New work generated',v:'Unstructured ticket text surfaces queue capacity bottlenecks, service quality signals and operational patterns that structured reporting never captures'}
+  ]},
+  wd:{title:'Workday · Workforce',sub:'People data: do we have the right capacity in the right queues at the right time?',items:[
+    {l:'Data contributed',v:'Team headcount by queue and function, shift scheduling data, operational staffing levels, workforce capacity utilisation, absenteeism rates'},
+    {l:'Update frequency',v:'Nightly batch via AWS Glue ETL pipeline. Intraday snapshots for high-priority queue monitoring'},
+    {l:'Agent use',v:'Cortex Analyst queries staffing versus workload data to identify capacity bottlenecks. Agent flags queues where ticket volume exceeds team capacity before SLA breaches occur'},
+    {l:'New work generated',v:'Identifies understaffing patterns in specific queues before SLA breaches accumulate. Correlates absenteeism with ticket backlog to surface capacity risk proactively'}
+  ]}
+};
+
+function showDetail(id){
+  var d=DETAILS[id];if(!d)return;
+  document.querySelectorAll('.sys-card').forEach(function(c){c.classList.remove('active-card')});
+  event.currentTarget.classList.add('active-card');
+  document.getElementById('dt-title').textContent=d.title;
+  document.getElementById('dt-sub').textContent=d.sub;
+  document.getElementById('dt-grid').innerHTML=d.items.map(function(i){
+    return'<div class="dt-item"><div class="dt-lbl">'+i.l+'</div><div class="dt-val">'+i.v+'</div></div>';
+  }).join('');
+  var tray=document.getElementById('detail-tray');
+  tray.classList.add('vis');
+  tray.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
